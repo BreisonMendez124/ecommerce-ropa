@@ -23,7 +23,7 @@ export default function Login() {
   };
 
   const handleRegister = ( ) => {
-    navigate("/register");
+    console.log("registrado");
   }
 
   return (
