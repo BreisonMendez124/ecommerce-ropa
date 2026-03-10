@@ -1,9 +1,9 @@
-import { useState } from "react";
 import ProductCard from "../components/productCard/ProductCard";
 import Navbar from "../components/navbar/Navbar";
+import { useCart } from "../context/CartContext";
 
 export default function Catalog() {
-  const [cart, setCart] = useState([]);
+  const { addToCart } = useCart();
 
   const products = [
     {
@@ -44,18 +44,21 @@ export default function Catalog() {
     },
   ];
 
-  const addToCart = (product) => {
-    setCart([...cart, product]);
-  };
-
   return (
-    <>
-      <Navbar cartCount={cart.length} />
+    <div className="min-h-screen bg-gray-50">
+      <Navbar />
 
-      <div className="container mt-5">
-        <h2 className="mb-4 text-center">Catálogo de Ropa</h2>
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-800 mb-3">
+            Catálogo de Ropa
+          </h1>
+          <p className="text-gray-600 text-lg">
+            Descubre las últimas tendencias en moda
+          </p>
+        </div>
 
-        <div className="row">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
           {products.map((product) => (
             <ProductCard
               key={product.id}
@@ -65,6 +68,6 @@ export default function Catalog() {
           ))}
         </div>
       </div>
-    </>
+    </div>
   );
 }
