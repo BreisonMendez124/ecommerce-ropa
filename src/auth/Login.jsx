@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Input from "../components/input/Input";
 import Button from "../components/button/Button";
+import { authService } from "../services/api";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -9,6 +10,8 @@ export default function Login() {
     email: "",
     password: "",
   });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({
@@ -17,10 +20,25 @@ export default function Login() {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Login Data:", formData);
-    navigate("/catalog");
+    setError("");
+    setLoading(true);
+
+    try {
+      const response = await authService.login(formData);
+      
+      if (response.success) {
+        navigate("/catalog");
+      } else {
+        setError(response.message || "Error al iniciar sesión");
+      }
+    } catch (err) {
+      setError("Error de conexión con el servidor");
+      console.error("Login error:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -35,6 +53,12 @@ export default function Login() {
           <h2 className="text-3xl font-bold text-gray-800 mb-2">Bienvenido</h2>
           <p className="text-gray-600">Inicia sesión en tu cuenta</p>
         </div>
+
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit}>
           <Input
@@ -58,8 +82,8 @@ export default function Login() {
             minLength="6"
           />
 
-          <Button type="submit" className="w-full" size="lg">
-            Ingresar
+          <Button type="submit" className="w-full" size="lg" disabled={loading}>
+            {loading ? "Ingresando..." : "Ingresar"}
           </Button>
         </form>
 

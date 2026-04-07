@@ -1,28 +1,71 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Input from '../../components/input/Input';
 import Button from '../../components/button/Button';
+import { authService, tipoIdentificacionService } from '../../services/api';
 
 export default function Register() {
     const navigate = useNavigate();
+    const [tiposIdentificacion, setTiposIdentificacion] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
     const [formData, setFormData] = useState({
+        nombre: '',
+        apellido: '',
+        numero_identificacion: '',
         email: '',
         password: '',
-        confirmPassword: ''
+        confirmPassword: '',
+        id_tipo_identificacion: '',
+        id_rol: 2 // Cliente por defecto
     });
+
+    useEffect(() => {
+        loadTiposIdentificacion();
+    }, []);
+
+    const loadTiposIdentificacion = async () => {
+        try {
+            const response = await tipoIdentificacionService.getAll();
+            if (response.success) {
+                setTiposIdentificacion(response.data);
+            }
+        } catch (err) {
+            console.error("Error cargando tipos de identificación:", err);
+        }
+    };
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
-    const handleRegister = (e) => {
+    const handleRegister = async (e) => {
         e.preventDefault();
+        setError("");
+
         if (formData.password !== formData.confirmPassword) {
-            alert("¡Las contraseñas no coinciden!");
+            setError("¡Las contraseñas no coinciden!");
             return;
         }
-        console.log("Registrando usuario:", formData.email);
-        navigate("/catalog");
+
+        setLoading(true);
+
+        try {
+            const { confirmPassword, ...registerData } = formData;
+            const response = await authService.register(registerData);
+
+            if (response.success) {
+                alert("Registro exitoso. Por favor inicia sesión.");
+                navigate("/");
+            } else {
+                setError(response.message || "Error al registrar usuario");
+            }
+        } catch (err) {
+            setError("Error de conexión con el servidor");
+            console.error("Register error:", err);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -38,7 +81,63 @@ export default function Register() {
                     <p className="text-gray-600">Únete a nuestra tienda y empieza a comprar</p>
                 </div>
 
-                <form onSubmit={handleRegister}>
+                {error && (
+                    <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+                        {error}
+                    </div>
+                )}
+
+                <form onSubmit={handleRegister} className="space-y-3">
+                    <Input
+                        label="Nombre"
+                        type="text"
+                        name="nombre"
+                        placeholder="Tu nombre"
+                        value={formData.nombre}
+                        onChange={handleChange}
+                        required
+                    />
+
+                    <Input
+                        label="Apellido"
+                        type="text"
+                        name="apellido"
+                        placeholder="Tu apellido"
+                        value={formData.apellido}
+                        onChange={handleChange}
+                        required
+                    />
+
+                    <div className="mb-4">
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Tipo de Identificación
+                        </label>
+                        <select
+                            name="id_tipo_identificacion"
+                            value={formData.id_tipo_identificacion}
+                            onChange={handleChange}
+                            className="w-full px-4 py-2.5 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                            required
+                        >
+                            <option value="">Selecciona un tipo</option>
+                            {tiposIdentificacion.map((tipo) => (
+                                <option key={tipo.id} value={tipo.id}>
+                                    {tipo.nombre}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <Input
+                        label="Número de Identificación"
+                        type="text"
+                        name="numero_identificacion"
+                        placeholder="12345678"
+                        value={formData.numero_identificacion}
+                        onChange={handleChange}
+                        required
+                    />
+
                     <Input
                         label="Correo electrónico"
                         type="email"
@@ -70,8 +169,8 @@ export default function Register() {
                         required
                     />
 
-                    <Button type="submit" className="w-full" size="lg">
-                        Registrarse
+                    <Button type="submit" className="w-full mt-6" size="lg" disabled={loading}>
+                        {loading ? "Registrando..." : "Registrarse"}
                     </Button>
                 </form>
 

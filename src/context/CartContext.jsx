@@ -17,7 +17,13 @@ export function CartProvider({ children }) {
         );
       }
       
-      return [...prevCart, { ...product, quantity: 1 }];
+      return [...prevCart, { 
+        ...product, 
+        quantity: 1,
+        price: product.precio,
+        name: product.nombre,
+        image: product.imagen_url || 'https://via.placeholder.com/300x300?text=Sin+Imagen'
+      }];
     });
   };
 
