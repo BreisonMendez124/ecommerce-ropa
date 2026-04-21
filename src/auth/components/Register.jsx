@@ -6,7 +6,11 @@ import { authService, tipoIdentificacionService } from '../../services/api';
 
 export default function Register() {
     const navigate = useNavigate();
-    const [tiposIdentificacion, setTiposIdentificacion] = useState([]);
+    const [tiposIdentificacion, setTiposIdentificacion] = useState([{
+        id:1, nombre:"DNI",
+        id:2, nombre:"Pasaporte",
+        id:3, nombre:"RUC",
+    }]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [formData, setFormData] = useState({
@@ -20,20 +24,6 @@ export default function Register() {
         id_rol: 2 // Cliente por defecto
     });
 
-    useEffect(() => {
-        loadTiposIdentificacion();
-    }, []);
-
-    const loadTiposIdentificacion = async () => {
-        try {
-            const response = await tipoIdentificacionService.getAll();
-            if (response.success) {
-                setTiposIdentificacion(response.data);
-            }
-        } catch (err) {
-            console.error("Error cargando tipos de identificación:", err);
-        }
-    };
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });

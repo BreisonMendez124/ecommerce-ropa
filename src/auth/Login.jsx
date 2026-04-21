@@ -14,6 +14,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
+      
     setFormData({
       ...formData,
       [e.target.name]: e.target.value,
@@ -24,6 +25,7 @@ export default function Login() {
     e.preventDefault();
     setError("");
     setLoading(true);
+    console.log("🚀 ~ handleChange ~ formData:", formData)
 
     try {
       const response = await authService.login(formData);
