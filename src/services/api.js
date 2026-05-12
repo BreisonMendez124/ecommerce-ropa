@@ -1,4 +1,4 @@
-const API_URL = 'http://ecommerce-env.eba-waahu3mq.us-east-2.elasticbeanstalk.com/api';
+const API_URL = 'https://ecommerce-env.eba-waahu3mq.us-east-2.elasticbeanstalk.com/api';
 
 const getAuthHeaders = () => {
   const token = localStorage.getItem('token');
